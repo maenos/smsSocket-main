@@ -1,0 +1,268 @@
+{% extends 'layout.twig' %}
+
+{% block body %}
+
+<style>
+  .form-login {
+    background-color: rgba(255, 255, 255, 0.55);
+    padding-top: 10px;
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: 15px;
+    border-color: #d2d2d2;
+    border-width: 5px;
+    color: black;
+    box-shadow: 0 1px 0 #cfcfcf;
+  }
+
+  .form-control {
+    background: transparent !important;
+    color: black !important;
+    font-size: 18px !important;
+  }
+
+  h1 {
+    color: black !important;
+  }
+
+  h4 {
+    border: 0 solid black;
+    border-bottom-width: 1px;
+    padding-bottom: 10px;
+    text-align: center;
+  }
+
+  .form-control {
+    border-radius: 10px;
+  }
+
+  .text-white {
+    color: white !important;
+  }
+
+  .wrapper {
+    text-align: center;
+  }
+</style>
+
+<div class="container">
+  <div class="row justify-content-center">
+
+    <h1 class=" text-center">Bienvenue sur maenosdev live sms
+    </h1>
+
+
+    {% if auth %}
+
+    <div class="col-12 mt-5">
+
+      <h3 class=" text-center" id="user" data-user="{{user.username}}">vous etes connectez Mr {{ user.username }} </h3>
+
+      <div class="row justify-content-center align-items-center  g-3 row-cols-md-4 w-75 m-auto">
+
+        {% for ud in users %}
+        {% if ud.username == user.username %}
+
+        {% else %}
+        <div class="col">
+          <div class="card  w-100 m-auto">
+            <div class="card-header">
+              <p class="text-center  fw-bold" style="font-size: 15px;text-align:center">{{ud.username}}</p>
+
+
+              <div class="statusUser" data-username="{{ud.username}}" data-online="{{ud.online}}">
+
+              </div>
+
+
+
+            </div>
+            <div class="card-body m-auto">
+              <img src="https://img.icons8.com/plasticine/256/user.png" class="img-thumbnail" width="80">
+
+              <br>
+              <a href="/users/{{ud.username}}" class="btn btn-primary btn-md mt-3">discuter <i
+                  class="fa fa-sign-in"></i></a>
+
+
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+
+
+      </div>
+
+      <span class="group-btn d-flex">
+        <a href="/users/logout" class="btn btn-primary btn-md mt-4 m-auto " id="deconnecter">Se deconncter <i
+            class="fa fa-sign-in"></i></a>
+
+      </span>
+
+    </div>
+    {% else %}
+
+
+    <div class="col-12 w-100 mt-4 " style="max-width:500px">
+
+      {% if flash %}
+
+      {% if flash.error == "1" %}
+
+      <div class="alert alert-danger" role="alert">
+        erreur veuillez remplir touts les champs
+      </div>
+      {% endif %}
+
+
+      {% if flash.error == "2" %}
+
+      <div class="alert alert-danger" role="alert">
+        erreur verifiez le username ou le mots de passe
+      </div>
+      {% endif %}
+
+
+
+
+      {% if flash.error == "3" %}
+      <div class="alert alert-info" role="alert">
+        connectez avec succes
+      </div>
+      {% endif %}
+
+
+      {% if flash.error == "4" %}
+      <div class="alert alert-success" role="alert">
+        incrit et connectez avec succes
+      </div>
+      {% endif %}
+
+
+
+
+      {% endif %}
+
+
+
+
+
+      <div class="form-login">
+        <form action="/auth" method="post">
+          <h4>Secure Login</h4>
+          </br>
+          <input type="text" id="userName" class="form-control input-sm chat-input" placeholder="username"
+            name="userName" required />
+          </br></br>
+          <input type="password" id="userPassword" class="form-control input-sm chat-input" placeholder="password"
+            name="userPassword" />
+          </br></br>
+          <div class="wrapper">
+            <span class="group-btn">
+              <button type="submit" class="btn btn-primary btn-md">login <i class="fa fa-sign-in"></i></button>
+
+            </span>
+            <p class="mt-4" style="font-size: 17px;font-weight:bold">si vous n'exister pas vous aurez un compte creer
+            </p>
+          </div>
+        </form>
+      </div>
+
+    </div>
+    {% endif %}
+
+
+
+  </div>
+
+</div>
+
+
+
+
+{% endblock %}
+
+{% block script %}
+<script>
+  const socket = io();
+
+
+  var myButton = document.querySelector("#deconnecter");
+
+  const myUser = document.getElementById('user');
+  if (myUser) {
+    const myUserValue = myUser.getAttribute('data-user');
+
+
+
+    window.onload = () => {
+
+      myUserValue && socket.emit('onConnect', { user: myUserValue });
+    };
+
+
+
+
+    if (myButton) {
+      // Ajouter un écouteur d'événement de clic sur le bouton
+      myButton.addEventListener("click", function () {
+        // Code à exécuter lorsque le bouton est cliqué
+        socket.emit('ondisconnect', { user: myUserValue });
+
+      });
+    }
+
+
+
+  }
+
+
+
+
+
+
+  socket.on('status', (data) => {
+    console.log(data);
+
+
+    console.log('problem')
+
+    const users = document.querySelectorAll('.statusUser');
+    if (users) {
+
+      for (user of users) {
+
+        if (user.dataset && user.dataset.username) {
+          if (user.dataset.username == data.username) {
+            if (data.online) {
+              user.innerHTML = `<p class="text-center">connectez <span><img src="https://img.icons8.com/emoji/256/green-circle-emoji.png" class="img-thumbnail" width="30"></span></p>`;
+
+            } else {
+              user.innerHTML = ` <p class="text-center">deconnctez <span><img src="https://img.icons8.com/emoji/256/red-circle-emoji.png" class="img-thumbnail" width="30"></span></p>`;
+            }
+          } else if (user.dataset.online) {
+            if (user.dataset.online == 'true') {
+              user.innerHTML = `<p class="text-center">connectez <span><img src="https://img.icons8.com/emoji/256/green-circle-emoji.png" class="img-thumbnail" width="30"></span></p>`;
+
+            } else {
+              user.innerHTML = ` <p class="text-center">deconnctez <span><img src="https://img.icons8.com/emoji/256/red-circle-emoji.png" class="img-thumbnail" width="30"></span></p>`;
+
+            }
+          }
+
+        }
+      }
+
+
+
+
+    }
+  })
+
+
+</script>
+
+{% endblock %}

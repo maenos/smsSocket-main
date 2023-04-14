@@ -1,0 +1,527 @@
+{% extends 'layout.twig' %}
+
+{% block body %}
+
+<style>
+    .cons {
+        width: 180px !important;
+        max-width: 190px !important;
+        position: absolute;
+        top: 30%;
+        margin: auto 10px;
+        display: flex;
+        align-content: center;
+        align-items: center;
+    }
+
+    .chat-app .chat {
+        margin-left: 200px;
+        border-left: 1px solid #eaeaea
+    }
+
+
+
+    .chat .chat-header {
+        padding: 15px 20px;
+        border-bottom: 2px solid #f4f7f6
+    }
+
+    .chat .chat-header img {
+        float: left;
+        border-radius: 40px;
+        width: 40px
+    }
+
+    .chat .chat-header .chat-about {
+        float: left;
+        padding-left: 10px
+    }
+
+    .chat .chat-history {
+        padding: 20px;
+        border-bottom: 2px solid #fff
+    }
+
+    .chat .chat-history ul {
+        padding: 0
+    }
+
+    .chat .chat-history ul li {
+        list-style: none;
+        margin-bottom: 30px
+    }
+
+    .chat .chat-history ul li:last-child {
+        margin-bottom: 0px
+    }
+
+    .chat .chat-history .message-data {
+        margin-bottom: 15px
+    }
+
+    .chat .chat-history .message-data img {
+        border-radius: 40px;
+        width: 40px
+    }
+
+    .chat .chat-history .message-data-time {
+        color: #434651;
+        padding-left: 6px
+    }
+
+    .chat .chat-history .message {
+        color: #444;
+        padding: 18px 20px;
+        line-height: 26px;
+        font-size: 16px;
+        border-radius: 7px;
+        display: inline-block;
+        position: relative
+    }
+
+    .chat .chat-history .message:after {
+        bottom: 100%;
+        left: 7%;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+        border-bottom-color: #fff;
+        border-width: 10px;
+        margin-left: -10px
+    }
+
+    .chat .chat-history .my-message {
+        background: #efefef
+    }
+
+    .chat .chat-history .my-message:after {
+        bottom: 100%;
+        left: 30px;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+        border-bottom-color: #efefef;
+        border-width: 10px;
+        margin-left: -10px
+    }
+
+    .chat .chat-history .other-message {
+        background: #e8f1f3;
+        text-align: right
+    }
+
+    .chat .chat-history .other-message:after {
+        border-bottom-color: #e8f1f3;
+        left: 93%
+    }
+
+    .chat .chat-message {
+        padding: 20px
+    }
+
+    .online,
+    .offline,
+    .me {
+        margin-right: 2px;
+        font-size: 8px;
+        vertical-align: middle
+    }
+
+    .online {
+        color: #86c541
+    }
+
+    .offline {
+        color: #e47297
+    }
+
+    .me {
+        color: #1d8ecd
+    }
+
+    .float-right {
+        float: right
+    }
+
+    .clearfix:after {
+        visibility: hidden;
+        display: block;
+        font-size: 0;
+        content: " ";
+        clear: both;
+        height: 0
+    }
+
+    @media only screen and (max-width: 767px) {
+        .chat-app .cons {
+            height: 465px;
+            width: 100%;
+            overflow-x: auto;
+            background: #fff;
+            left: -400px;
+            display: none
+        }
+
+        .chat-app .people-list.open {
+            left: 0
+        }
+
+        .chat-app .chat {
+            margin: 0
+        }
+
+        .chat-app .chat .chat-header {
+            border-radius: 0.55rem 0.55rem 0 0
+        }
+
+        .chat-app .chat-history {
+            height: 300px;
+            overflow-x: auto
+        }
+    }
+
+    @media only screen and (min-width: 768px) and (max-width: 992px) {
+        .chat-app .chat-list {
+            height: 650px;
+            overflow-x: auto
+        }
+
+        .chat-app .chat-history {
+            height: 600px;
+            overflow-x: auto
+        }
+    }
+
+    @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 1) {
+        .chat-app .chat-list {
+            height: 480px;
+            overflow-x: auto
+        }
+
+        .chat-app .chat-history {
+            height: calc(100vh - 350px);
+            overflow-x: auto
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+
+
+
+
+
+        <div class="col-12 mt-5">
+            {% if me.online %}
+
+            <h3 class=" text-center"> vous ete en ligne <span style="font-size: 60px;font-weight:bold;color:green"><img
+                        src="https://img.icons8.com/emoji/256/sign-of-the-horns-light-skin-tone.png"
+                        class="img-thumbnail" width="50"></span> </h3>
+            {% else %}
+
+            <h3 class=" text-center"> vous ete en deconncter <span
+                    style="font-size: 60px;font-weight:bold;color:green"><img
+                        src="https://img.icons8.com/emoji/256/worried-face.png" class="img-thumbnail" width="50"></span>
+            </h3>
+
+
+            {% endif %}
+
+
+            <div class="row justify-content-center align-items-center  g-3 m-auto">
+                <div class="container">
+                    <div class="row clearfix">
+                        <div class="col-lg-12">
+                            <div class="card chat-app">
+                                <div class="cons">
+                                    <p class="text-center text-bg-primary" style="font-size: 18px;font-weight:bold">
+                                        "Manger 5 fruits et légumes par jour est important pour rester en bonne santé.
+                                        Ils sont riches en vitamines, minéraux et antioxydants, et aident à prévenir les
+                                        maladies chroniques."
+
+
+
+                                    </p>
+                                </div>
+                                <div class="chat">
+                                    <div class="chat-header clearfix">
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                                <a href="javascript:void(0);" data-toggle="modal"
+                                                    data-target="#view_info">
+                                                    <img src="https://bootdey.com/img/Content/avatar/avatar2.png"
+                                                        alt="avatar">
+                                                </a>
+                                                <div class="chat-about">
+                                                    <h6 class="m-b-0">{{ user.username }}</h6>
+                                                    <div id="userState" data-value="{{ user.username }}"
+                                                        data-online="{{ user.online }}">
+
+                                                    </div>
+
+
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="chat-history">
+                                        <ul class="m-b-0" id="chatbox">
+
+
+
+
+                                        </ul>
+                                    </div>
+                                    <div class="chat-message clearfix">
+                                        <form id="formmessage">
+
+                                            <div class="input-group mb-0">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="fa fa-send"></i></span>
+                                                </div>
+                                                <input type="text" class="form-control" id="message"
+                                                    placeholder="Enter text here...">
+                                            </div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <span class="group-btn d-flex">
+                    <a  href="/users" class="btn btn-primary btn-md mt-4 m-auto">retour <i
+                            class="fa fa-sign-in"></i></a>
+
+                </span>
+
+            </div>
+        </div>
+
+        <input type="hidden" name="uuid" value="{{me.username}}" id="me">
+    </div>
+
+
+
+
+    {% endblock %}
+
+
+    {% block script %}
+    <script>
+        const socket = io();
+
+        const user = document.getElementById('userState');
+        const me = document.getElementById('me');
+        const message = document.getElementById('message');
+        const formM = document.getElementById('formmessage');
+
+        console.log(formM);
+        window.onload = () => {
+            if (user) {
+                if (user.dataset.online) {
+                    if (user.dataset.online == 'true') {
+                        user.innerHTML = `<p class="text-center">connectez</p>`;
+
+                    } else {
+                        user.innerHTML = ` <p class="text-center">deconnctez</p>`;
+
+                    }
+                }
+            }
+            if (me) {
+                socket.emit('chat', { user: me.value })
+
+            }
+
+        }
+
+        if (me) {
+            socket.on('status', (data) => {
+                console.log(data);
+
+
+                console.log('problem')
+
+                console.log(user);
+                if (user) {
+
+
+
+                    if (user.dataset && user.dataset.value) {
+                        if (user.dataset.value == data.username) {
+                            if (data.online) {
+                                user.innerHTML = `<p class="text-center">connectez</p>`;
+
+                            } else {
+                                user.innerHTML = ` <p class="text-center">deconnctez</p>`;
+                            }
+                        }
+
+
+                    }
+
+
+
+
+                }
+            })
+
+            console.log(me.value)
+            function envoyerMessage(e) {
+                e.preventDefault(); // empêche la soumission du formulaire
+
+                if (message.value != null || message.value != null) {
+
+                    socket.emit('message', {
+                        sender: me.value,
+                        receiver: user.dataset.value,
+                        content: message.value,
+                    });
+
+                    // const messageInput = document.getElementById('message');
+
+                    message.value = "";
+                    console.log('ok')
+                } else {
+                    alert('aucun message envoyer');
+                }
+                // Envoyer un message avec des données au serveur
+
+
+
+            }
+
+
+
+            document.addEventListener('DOMContentLoaded', function () {
+
+                formM.addEventListener('submit', envoyerMessage);
+            });
+
+
+            socket.on('allchat', (data) => {
+
+                function trierMessagesParHorodatage(messages) {
+                    return messages.sort(function (a, b) {
+                        return a.timestamp - b.timestamp;
+                    });
+                }
+
+                const datasort = trierMessagesParHorodatage(data);
+                const chatbox = document.getElementById("chatbox");
+
+                for (msg of datasort) {
+                    let formattedTimestamp = null;
+                    const now = new Date();
+                    const dateToCheck = new Date(msg.timestamp);
+
+                    if (now.getFullYear() === dateToCheck.getFullYear() && now.getMonth() === dateToCheck.getMonth() && now.getDate() === dateToCheck.getDate()) {
+                        // Afficher l'heure seulement
+                        const rawTime = dateToCheck.toLocaleTimeString("fr-FR");
+                        formattedTimestamp = rawTime.slice(-8, -3);
+
+                    } else {
+                        // Afficher la date complète
+                        const rawTime = dateToCheck.toLocaleTimeString("fr-FR");
+
+                        formattedTimestamp = rawDate.slice(0, 10).replace(/-/g, "/");
+
+                    }
+
+                    if (msg.sender == user.dataset.value) {
+
+                        chatbox.innerHTML += `  <li class="clearfix">
+                                                <div class="message-data">
+                                                    <span class="message-data-time">${formattedTimestamp}</span>
+                                                </div>
+                                                <div class="message my-message">${msg.content}</div>
+                                            </li>`
+
+                    } else if (msg.receiver == user.dataset.value) {
+                        chatbox.innerHTML += `  <li class="clearfix">
+                                                <div class="message-data text-right">
+                                                    <span class="message-data-time  float-right">${formattedTimestamp}</span>
+                                                  
+                                                </div>
+                                                <div class="message other-message float-right">${msg.content} </div>
+                                            </li>`
+
+                    }
+                }
+                console.log(chatbox);
+
+
+
+            })
+
+            socket.on('newMsg', (res) => {
+                const chatbox = document.getElementById("chatbox");
+                const chatboxdiv = chatbox.parentNode;
+                console.log(chatboxdiv);
+
+                let formattedTimestamp = null;
+                const now = new Date();
+                const dateToCheck = new Date(res.timestamp);
+
+                if (now.getFullYear() === dateToCheck.getFullYear() && now.getMonth() === dateToCheck.getMonth() && now.getDate() === dateToCheck.getDate()) {
+                    // Afficher l'heure seulement
+                    const rawTime = dateToCheck.toLocaleTimeString("fr-FR");
+                    formattedTimestamp = rawTime.slice(-8, -3);
+
+                } else {
+                    // Afficher la date complète
+                    const rawTime = dateToCheck.toLocaleTimeString("fr-FR");
+
+                    formattedTimestamp = rawTime.slice(0, 10).replace(/-/g, "/");
+
+                }
+
+
+                if (res.sender == user.dataset.value) {
+
+                    chatbox.innerHTML += `  <li class="clearfix">
+                                                <div class="message-data">
+                                                    <span class="message-data-time">${formattedTimestamp}</span>
+                                                </div>
+                                                <div class="message my-message">${res.content}</div>
+                                            </li>`;
+
+                    chatboxdiv.scrollTop = chatboxdiv.scrollHeight;
+
+
+                } else if (res.receiver == user.dataset.value) {
+                    chatbox.innerHTML += `  <li class="clearfix">
+                                                <div class="message-data text-right">
+                                                    <span class="message-data-time  float-right">${formattedTimestamp}</span>
+                                                  
+                                                </div>
+                                                <div class="message other-message float-right">${res.content} </div>
+                                            </li>`;
+                    chatboxdiv.scrollTop = chatboxdiv.scrollHeight;
+
+
+
+                }
+
+                chatboxdiv.scrollTop = chatboxdiv.scrollHeight - chatboxdiv.clientHeight;
+
+
+
+            })
+
+        }
+
+    </script>
+
+    {% endblock %}
